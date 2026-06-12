@@ -1,0 +1,117 @@
+-- Get the Local Player and CoreGui
+local player = game:GetService("Players").LocalPlayer
+local coreGui = game:GetService("CoreGui")
+local tweenService = game:GetService("TweenService")
+
+-- Create the ScreenGui (Protected from resetting on death)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CustomLoaderGui"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999
+screenGui.Parent = coreGui
+
+-- Create Main Background Frame
+local backgroundFrame = Instance.new("Frame")
+backgroundFrame.Size = UDim2.new(1, 0, 1, 0)
+backgroundFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Dark sleek background
+backgroundFrame.BorderSizePixel = 0
+backgroundFrame.Parent = screenGui
+
+-- Create Loading Text
+local statusText = Instance.new("TextLabel")
+statusText.Size = UDim2.new(0, 400, 0, 50)
+statusText.Position = UDim2.new(0.5, -200, 0.45, -25)
+statusText.BackgroundTransparency = 1
+statusText.Text = "Checking Username..."
+statusText.TextColor3 = Color3.fromRGB(255, 255, 255)
+statusText.Font = Enum.Font.GothamBold
+statusText.TextSize = 24
+statusText.Parent = backgroundFrame
+
+-- Create Percentage Text
+local percentText = Instance.new("TextLabel")
+percentText.Size = UDim2.new(0, 200, 0, 50)
+percentText.Position = UDim2.new(0.5, -100, 0.52, 0)
+percentText.BackgroundTransparency = 1
+percentText.Text = "0%"
+percentText.TextColor3 = Color3.fromRGB(0, 255, 150) -- Nice green accent
+percentText.Font = Enum.Font.GothamBold
+percentText.TextSize = 32
+percentText.Parent = backgroundFrame
+
+-- Create Loading Bar Background
+local barBackground = Instance.new("Frame")
+barBackground.Size = UDim2.new(0, 300, 0, 10)
+barBackground.Position = UDim2.new(0.5, -150, 0.6, 0)
+barBackground.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+barBackground.BorderSizePixel = 0
+barBackground.Parent = backgroundFrame
+
+-- Create Actual Loading Bar
+local loadingBar = Instance.new("Frame")
+loadingBar.Size = UDim2.new(0, 0, 1, 0) -- Starts at 0 width
+loadingBar.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+loadingBar.BorderSizePixel = 0
+loadingBar.Parent = barBackground
+
+-- Add smooth rounded corners to the loading bar
+local uiCorner1 = Instance.new("UICorner")
+uiCorner1.CornerRadius = UDim.new(0, 5)
+uiCorner1.Parent = barBackground
+
+local uiCorner2 = Instance.new("UICorner")
+uiCorner2.CornerRadius = UDim.new(0, 5)
+uiCorner2.Parent = loadingBar
+
+---------------------------------------------------------
+-- LOADING ANIMATION SYSTEM
+---------------------------------------------------------
+task.wait(0.5)
+statusText.Text = "Loading Script Assets..."
+
+-- Animate the bar and percentage count
+for i = 1, 100 do
+    percentText.Text = i .. "%"
+    loadingBar.Size = UDim2.new(i / 100, 0, 1, 0)
+    
+    -- Dynamically change text based on percentage
+    if i == 30 then
+        statusText.Text = "Verifying Whitelist..."
+    elseif i == 65 then
+        statusText.Text = "Bypassing Anticheat..."
+    elseif i == 85 then
+        statusText.Text = "Injecting Modules..."
+    end
+    
+    -- Smooth random speed simulation
+    if i > 80 then
+        task.wait(0.05) -- Slows down at the end for realism
+    else
+        task.wait(0.02)
+    end
+end
+
+statusText.Text = "Ready! Executing..."
+task.wait(0.5)
+
+-- Fade out loading screen smoothly
+local fadeTween = tweenService:Create(backgroundFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1})
+tweenService:Create(statusText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+tweenService:Create(percentText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+tweenService:Create(barBackground, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+tweenService:Create(loadingBar, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+
+fadeTween:Play()
+fadeTween.Completed:Wait()
+
+-- Destroy the UI to clean up memory
+screenGui:Destroy()
+
+---------------------------------------------------------
+-- USERNAME CHECK AND EXECUTION
+---------------------------------------------------------
+if player.Name == "williampmaco2" then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/MoziIOnTop/pro/refs/heads/main/x100Luck.lua"))()
+else
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/SCRIPTER65/REDZ-HUB/refs/heads/main/Lucky%20100x"))()
+end
