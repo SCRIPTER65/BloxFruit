@@ -1,0 +1,138 @@
+-- Mga Serbisyo ng Roblox
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+-- Mga UI Elements
+local gui = script.Parent
+local mainFrame = gui:WaitForChild("MainFrame")
+local percentText = mainFrame:WaitForChild("PercentText")
+local barBackground = mainFrame:WaitForChild("BarBackground")
+local progressBar = barBackground:WaitForChild("ProgressBar")
+
+-- Magdagdag tayo ng TextLabel para sa mga Game Tips/Quotes para may binabasa ang player
+-- Siguraduhing gumawa ka ng TextLabel na may pangalang "TipsText" sa loob ng MainFrame
+local tipsText = mainFrame:FindFirstChild("TipsText") 
+
+-- Listahan ng mga loading tips na magpapalit-palit
+local gameTips = {
+	"Tip: Huwag kalimutang i-explore ang buong mapa para sa mga sikreto!",
+	"Tip: Maaari mong i-customize ang iyong karakter sa main menu.",
+	"Tip: Maging mabait sa ibang players para sa mas masayang laro.",
+	"Loading assets, please wait patiently...",
+	"Generating awesome world features..."
+}
+
+-- I-set ang paunang anyo ng UI
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+percentText.Text = "0%"
+
+-- 1. PULSE EFFECT PARA SA TEXT (Glow effect)
+local function startTextPulse()
+	task.spawn(function()
+		while gui.Parent do
+			local pulseUp = TweenService:Create(percentText, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {TextStrokeTransparency = 0.3, TextStrokeColor3 = Color3.fromRGB(255, 255, 255)})
+			local pulseDown = TweenService:Create(percentText, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {TextStrokeTransparency = 0.9, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
+			
+			pulseUp:Play()
+			pulseUp.Completed:Wait()
+			pulseDown:Play()
+			pulseDown.Completed:Wait()
+		end
+	end)
+end
+
+-- 2. BACKGROUND COLOR CYCLE EFFECT (Smooth color shifting)
+local function startBackgroundCycle()
+	task.spawn(function()
+		local colors = {
+			Color3.fromRGB(15, 15, 30),  -- Deep Navy
+			Color3.fromRGB(25, 15, 35),  -- Dark Purple
+			Color3.fromRGB(15, 25, 30),  -- Dark Teal
+		}
+		local colorIndex = 1
+		
+		while gui.Parent do
+			local targetColor = colors[colorIndex]
+			local colorTween = TweenService:Create(mainFrame, TweenInfo.new(3, Enum.EasingStyle.Linear), {BackgroundColor3 = targetColor})
+			colorTween:Play()
+			colorTween.Completed:Wait()
+			
+			colorIndex = colorIndex % #colors + 1
+		end
+	end)
+end
+
+-- 3. TIPS CHANGER EFFECT
+local function startTipsChanger()
+	if not tipsText then return end
+	task.spawn(function()
+		while gui.Parent do
+			local randomTip = gameTips[math.random(1, #gameTips)]
+			
+			-- Fade out ang lumang tip
+			TweenService:Create(tipsText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+			task.wait(0.5)
+			
+			-- Palitan ang text at i-fade in
+			tipsText.Text = randomTip
+			TweenService:Create(tipsText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+			
+			task.wait(4) -- Mag-antay ng 4 na segundo bago palitan muli ang tip
+		end
+	end)
+end
+
+-- MAIN LOADING FUNCTION
+local function startLoading()
+	-- Itago ang Core Roblox GUI
+	game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+	
+	-- Patakbuhin ang mga visual effects nang sabay-sabay
+	startTextPulse()
+	startBackgroundCycle()
+	startTipsChanger()
+	
+	-- Loading sequence (0 to 100)
+	for i = 0, 100, 1 do
+		percentText.Text = tostring(i) .. "%"
+		
+		-- Mas swabe at modernong Tween style para sa progress bar
+		local targetSize = UDim2.new(i / 100, 0, 1, 0)
+		local tweenInfo = TweenInfo.new(0.08, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out)
+		local tween = TweenService:Create(progressBar, tweenInfo, {Size = targetSize})
+		tween:Play()
+		
+		-- Random na bilis para magmukhang totoong may nilo-load na assets (hindi static)
+		local customWait = math.random(3, 8) / 100
+		task.wait(customWait) 
+	end
+	
+	-- Pag natapos ang loading
+	percentText.Text = "READY!"
+	if tipsText then tipsText.Text = "Welcome to the game!" end
+	task.wait(0.8)
+	
+	-- MAGANDANG FADE OUT ANIMATION AT THE END
+	local fadeInfo = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+	
+	-- I-fade lahat ng elements nang sabay-sabay papuntang transparent
+	local elementsToFade = {mainFrame, percentText, barBackground, progressBar, tipsText}
+	for _, element in ipairs(elementsToFade) do
+		if element then
+			if element:IsA("TextLabel") then
+				TweenService:Create(element, fadeInfo, {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
+			elseif element:IsA("Frame") then
+				TweenService:Create(element, fadeInfo, {BackgroundTransparency = 1}):Play()
+			end
+		end
+	end
+	
+	task.wait(0.8) -- Antayin matapos ang buong fade bago burahin ang UI
+	
+	-- Ibalik ang normal UI at linisin ang system
+	game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
+	gui:Destroy()
+end
+
+-- Simulan ang loading screen
+startLoading()
